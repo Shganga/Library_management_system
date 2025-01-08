@@ -15,7 +15,6 @@ class Librarians:
     def get_username(self):
         return self.username
 
-
     def borrow_book(self,title,author,phone_number):
         available_books = pd.read_csv('available_books.csv')
         if not available_books[(available_books['title'] == title) & (available_books['author'] == author)].empty:
@@ -63,8 +62,7 @@ class Librarians:
             #     }, ignore_index=True)
             #
             # Remove the book from the loaned books CSV
-            loaned_books = loaned_books.drop(
-                loaned_books[(loaned_books['title'] == title) & (loaned_books['phone_number'] == phone_number) & (loaned_books['author'] == author)].index)
+            loaned_books = loaned_books.drop(loaned_books[(loaned_books['title'] == title) & (loaned_books['phone_number'] == phone_number) & (loaned_books['author'] == author)].index)
 
             # Save the updated available_books and loaned_books DataFrames back to the CSVs
             available_books.to_csv('available_books.csv', index=False)
