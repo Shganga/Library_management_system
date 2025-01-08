@@ -1,2 +1,3 @@
 username,password
-yaniv,1234
+eyal,scrypt:32768:8:1$lNo1vsNzIp3WTOpQ$fb57af32afce0039591cb99d362f851ba84ecd46e3b7d2184e5940d4ec632ed3668c0af7ce3c42f7892b6d6ee4c4e847e20e354afa51b7c01587df9c42fc592b
+

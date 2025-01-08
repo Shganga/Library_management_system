@@ -1,9 +1,10 @@
 import tkinter as tk
+from functools import partial
 from tkinter import messagebox
-from Menagment import *
 import pandas as pd
-
-
+from werkzeug.security import check_password_hash
+from Menagment.librarians import Librarians
+from Menagment.books.bookFactory import  BookFactory
 
 # Function to show the login page
 def show_login_page():
@@ -34,14 +35,15 @@ def show_login_page():
 def login(username, password):
     global session
     users_csv = pd.read_csv("users.csv")
-
     user_row = users_csv[users_csv["username"] == username]
     if not user_row.empty:
-        if password == str(user_row["password"].values[0]):
-            session = {'username': username}
+        if check_password_hash(str(user_row["password"].values[0]), password):
+            librarian = Librarians(username, password)
+            session = {'librarian': librarian}
             messagebox.showinfo("Login", "Login Successful!")
             show_book_management_page()
         else:
+            session = None
             messagebox.showerror("Login", "Invalid password!")
     else:
         messagebox.showerror("Login", "Invalid username!")
@@ -75,8 +77,8 @@ def show_register_page():
                                                          confirm_password_entry.get()))
     register_button.pack(pady=10)
 
-    back_button = tk.Button(root, text="Back", command=show_start_page)
-    back_button.pack(pady=10)
+    login_button = tk.Button(root, text="login", command=show_login_page)
+    login_button.pack(pady=10)
 
 
 # Function to handle registration
@@ -84,16 +86,18 @@ def register(username, password, confirm_password):
     users_csv = pd.read_csv("users.csv")
     if username not in users_csv["username"]:
         if password == confirm_password:
+            librarian = Librarians(username, password)
 
-            new_user = {"username": username, "password": password}
-            users_csv = users_csv.append(new_user, ignore_index=True)
+            new_user = {"username": librarian.get_username(), "password": librarian.get_password()}
+            users_csv = users_csv._append(new_user, ignore_index=True)
             users_csv.to_csv("users.csv", index=False)
 
-            session = {'username': username}
+            session = {'librarian': librarian}
 
             messagebox.showinfo("Register", f"User '{username}' has been registered successfully!")
             show_start_page()  # Go back to start page after registration
         else:
+            session = None
             messagebox.showerror("Register", "Passwords do not match!")
     else:
         messagebox.showerror("Register", "Username already registered!")
@@ -112,12 +116,12 @@ def logout():
     show_start_page()
 
 
-# Display the starter page with options to login or register
+# Display the starter page with options to log in or register
 def show_start_page():
     clear_window()
 
     if session:
-        label = tk.Label(root, text=f"Welcome {session['username']}!", font=("Arial", 16))
+        label = tk.Label(root, text=f"Welcome {session['librarian']}!", font=("Arial", 16))
         label.pack(pady=20)
 
         logout_button = tk.Button(root, text="Logout", command=logout)
@@ -141,11 +145,11 @@ def show_book_management_page():
     label.pack(pady=20)
 
     # Add Book Button
-    add_book_button = tk.Button(root, text="Add book page", command=show_add_book())
+    add_book_button = tk.Button(root, text="Add book page", command=lambda: show_add_book())
     add_book_button.pack(pady=10)
 
     # Remove Book Button
-    remove_book_button = tk.Button(root, text="Remove Book", command=remove_book)
+    remove_book_button = tk.Button(root, text="Remove Book", command=lambda: remove_book)
     remove_book_button.pack(pady=10)
 
     # Search Book Button
@@ -204,15 +208,20 @@ def show_add_book():
     copy_entry = tk.Entry(root)
     copy_entry.pack(pady=5)
 
-    submit_button = tk.Button(root, text="add", command=lambda: add_book(title_entry.get(), year_entry.get(), author_entry.get(), genre_entry.get(),copy_entry.get()))
+    submit_button = tk.Button(root, text="add", command=partial(add_book,title_entry.get(), year_entry.get(), author_entry.get(), genre_entry.get(),copy_entry.get()))
     submit_button.pack(pady=10)
+
+    return_button = tk.Button(root, text="back", command=show_book_management_page)
+    return_button.pack(pady=10)
 
 def check_valid_year(year):
     return year <= 2025
 # Placeholder functions for the book actions
 def add_book(title, author, copies, genre, year):
+    if session['librarian'] is None:
+        show_book_management_page()
     book = BookFactory.create_book(title, author, copies, genre, year)
-    Librarians.add_book(book)
+    session['librarian'].add_book(book)
     messagebox.showinfo("Add Book", "Add Book functionality")
 
 def show_remove_book():
@@ -230,7 +239,11 @@ def show_remove_book():
     author_entry = tk.Entry(root)
     author_entry.pack(pady=5)
 
-    delete_button = tk.Button(root, text="delete", command=lambda: remove_book(title_entry.get(), author_entry.get()))
+    delete_button = tk.Button(root, text="delete", command= partial(remove_book,title_entry.get(), author_entry.get()))
+    delete_button.pack(pady=10)
+
+    return_button = tk.Button(root, text="back", command=show_book_management_page)
+    return_button.pack(pady=10)
 
 
 def remove_book(title, author):
@@ -245,8 +258,35 @@ def search_book():
 def view_books():
     messagebox.showinfo("View Books", "View Books functionality")
 
+def show_lend_book():
+    clear_window()
+    label = tk.Label(root, text="lend book")
+    label.pack(pady=20)
 
-def lend_book():
+    title_label = tk.Label(root, text="title:")
+    title_label.pack(pady=5)
+    title_entry = tk.Entry(root)
+    title_entry.pack(pady=5)
+
+    author_label = tk.Label(root, text="author:")
+    author_label.pack(pady=5)
+    author_entry = tk.Entry(root)
+    author_entry.pack(pady=5)
+
+    phone_label = tk.Label(root, text="phone:")
+    phone_label.pack(pady=5)
+    phone_entry = tk.Entry(root)
+    phone_entry.pack(pady=5)
+
+    lend_book_button = tk.Button(root, text="Lend Book", command=partial(lend_book,title_entry.get(), author_entry.get(), phone_entry.get()))
+    lend_book_button.pack(pady=10)
+
+    return_button = tk.Button(root, text="back", command=show_book_management_page)
+    return_button.pack(pady=10)
+
+
+def lend_book(title,author,phone_number):
+    session['librarian'].borrow_book(title, author,phone_number)
     messagebox.showinfo("Lend Book", "Lend Book functionality")
 
 def show_return_book():
@@ -264,8 +304,19 @@ def show_return_book():
     author_entry = tk.Entry(root)
     author_entry.pack(pady=5)
 
-    delete_button = tk.Button(root, text="return", command=lambda: return_book(title_entry.get(), author_entry.get()))
-def return_book(title, author):
+    phone_label = tk.Label(root, text="phone:")
+    phone_label.pack(pady=5)
+    phone_entry = tk.Entry(root)
+    phone_entry.pack(pady=5)
+
+    return_button = tk.Button(root, text="return", command=partial(return_book,title_entry.get(), author_entry.get(),phone_entry.get()))
+    return_button.pack(pady=10)
+
+    return_button = tk.Button(root, text="back", command=show_book_management_page)
+    return_button.pack(pady=10)
+
+def return_book(title, author,phone_number):
+    session['librarian'].return_book(title, author, phone_number)
     messagebox.showinfo("Return Book", "Return Book functionality")
 
 
@@ -278,7 +329,9 @@ if __name__ == '__main__':
     root = tk.Tk()
     root.title("Library System")
     root.geometry("400x400")
+
     session = None
+
     show_start_page()
     root.mainloop()
 
