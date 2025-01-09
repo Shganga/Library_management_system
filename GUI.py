@@ -1,6 +1,8 @@
 import tkinter as tk
 from functools import partial
 from tkinter import messagebox
+from tkinter.constants import MULTIPLE, SINGLE
+
 import pandas as pd
 from werkzeug.security import check_password_hash
 from Menagment.librarians import Librarians
@@ -10,8 +12,9 @@ class GUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Library System")
-        self.root.geometry("400x400")
+        self.root.geometry("1000x500")
         self.session = None
+        self.search_strategy = None
 
         self.user_bar = tk.Frame(self.root, height=40, bg="#000000")
         self.user_bar.pack(side="top", fill="x")
@@ -45,37 +48,37 @@ class GUI:
 
 
     def show_start_page(self):
-
+        self.clear_window()
         self.refresh_page()
         label = tk.Label(self.root, text="Library Management", font=("Arial", 16))
         label.pack(pady=20)
 
         # Add Book Button
-        add_book_button = tk.Button(self.root, text="Add book page", command=lambda: self.check_session_and_execute(self.show_add_book))
+        add_book_button = tk.Button(self.root, text="Add book page", command=self.check_session_and_execute(self.show_add_book))
         add_book_button.pack(pady=10)
 
         # Remove Book Button
-        remove_book_button = tk.Button(self.root, text="Remove Book", command=lambda: self.check_session_and_execute(self.remove_book))
+        remove_book_button = tk.Button(self.root, text="Remove Book", command=self.check_session_and_execute(self.remove_book))
         remove_book_button.pack(pady=10)
 
         # Search Book Button
-        search_book_button = tk.Button(self.root, text="Search Book", command=lambda: self.check_session_and_execute(self.search_book))
+        search_book_button = tk.Button(self.root, text="Search Book", command=self.check_session_and_execute(self.search_book))
         search_book_button.pack(pady=10)
 
         # View Books Button
-        view_books_button = tk.Button(self.root, text="View Books", command=lambda: self.check_session_and_execute(self.view_books))
+        view_books_button = tk.Button(self.root, text="View Books", command=self.check_session_and_execute(self.view_books))
         view_books_button.pack(pady=10)
 
         # Lend Book Button
-        lend_book_button = tk.Button(self.root, text="Lend Book", command=lambda: self.check_session_and_execute(self.lend_book))
+        lend_book_button = tk.Button(self.root, text="Lend Book", command=self.check_session_and_execute(self.show_lend_book))
         lend_book_button.pack(pady=10)
 
         # Return Book Button
-        return_book_button = tk.Button(self.root, text="Return Book", command=lambda: self.check_session_and_execute(self.return_book))
+        return_book_button = tk.Button(self.root, text="Return Book", command=self.check_session_and_execute(self.show_return_book))
         return_book_button.pack(pady=10)
 
         # Popular Books Button
-        popular_books_button = tk.Button(self.root, text="Popular Books", command=lambda: self.check_session_and_execute(self.popular_books))
+        popular_books_button = tk.Button(self.root, text="Popular Books", command=self.check_session_and_execute(self.popular_books))
         popular_books_button.pack(pady=10)
         # if self.session:
         #     label = tk.Label(self.root, text=f"Welcome {self.session['librarian']}!", font=("Arial", 16))
@@ -248,8 +251,8 @@ class GUI:
         return_button.pack(pady=10)
 
     def remove_book(self,title, author):
-        ####
-        messagebox.showinfo("Remove Book", "Remove Book functionality")
+        print("remove book")
+
 
     def search_book(self):
         messagebox.showinfo("Search Book", "Search Book functionality")
@@ -259,65 +262,140 @@ class GUI:
 
     def show_lend_book(self):
         self.clear_window()
-        label = tk.Label(self.root, text="lend book")
-        label.pack(pady=20)
 
-        title_label = tk.Label(self.root, text="title:")
-        title_label.pack(pady=5)
-        title_entry = tk.Entry(self.root)
-        title_entry.pack(pady=5)
+        # Load the books from the file
+        books_df = pd.read_csv('books.csv')
+        books_list = books_df[books_df['available_copies'] > 1]
 
-        author_label = tk.Label(self.root, text="author:")
-        author_label.pack(pady=5)
-        author_entry = tk.Entry(self.root)
-        author_entry.pack(pady=5)
+        # Create a Listbox to display books
+        book_listbox = tk.Listbox(self.root, selectmode=tk.SINGLE, height=20, width=75)
+        for _, row in books_list.iterrows():
+            book_display = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']})"
+            book_listbox.insert(tk.END, book_display)
+        book_listbox.pack(padx=30, pady=30)
 
-        phone_label = tk.Label(self.root, text="phone:")
-        phone_label.pack(pady=5)
-        phone_entry = tk.Entry(self.root)
-        phone_entry.pack(pady=5)
+        borrow_button = tk.Button(self.root, text="Borrow", command=lambda: self.borrow_selected_book(book_listbox, books_list))
+        borrow_button.pack(pady=10)
+        # Function to handle book lending
 
-        lend_book_button = tk.Button(self.root, text="Lend Book",command=partial(self.lend_book, title_entry.get(), author_entry.get(),phone_entry.get()))
-        lend_book_button.pack(pady=10)
+        back_button = tk.Button(self.root, text="Back", command=self.show_start_page)
+        back_button.pack(pady=10)
 
-        return_button = tk.Button(self.root, text="back", command=self.show_start_page)
-        return_button.pack(pady=10)
+        # Search by
+        #results_listbox = tk.Listbox(self.root, width=50, height=10)
+        #results_listbox.pack()
 
-    def lend_book(self,title, author, phone_number):
-        self.session['librarian'].borrow_book(title, author, phone_number)
-        messagebox.showinfo("Lend Book", "Lend Book functionality")
+        # Create buttons to change search strategy
+        title_button = tk.Button(self.root, text="Search by Title", command=self.search_by_title)
+        title_button.pack(pady=5)
+
+        author_button = tk.Button(self.root, text="Search by Author", command=self.search_by_author)
+        author_button.pack(pady=5)
+
+        genre_button = tk.Button(self.root, text="Search by Genre", command=self.search_by_genre)
+        genre_button.pack(pady=5)
+
+        search_entry = tk.Entry(self.root, width=40)
+        search_entry.pack(pady=20)
+        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox))
+
+        # Static methods to perform the search
+    @staticmethod
+    def search_books_by_title(books_df, query):
+        return books_df[books_df['title'].str.contains(query, case=False, na=False)]
+
+    @staticmethod
+    def search_books_by_author(books_df, query):
+        return books_df[books_df['author'].str.contains(query, case=False, na=False)]
+
+    @staticmethod
+    def search_books_by_genre(books_df, query):
+        return books_df[books_df['genre'].str.contains(query, case=False, na=False)]
+
+    # Instance methods to change the search strategy
+    def search_by_title(self):
+        """Set search strategy to search by title."""
+        self.search_strategy = self.search_books_by_title
+
+    def search_by_author(self):
+        """Set search strategy to search by author."""
+        self.search_strategy = self.search_books_by_author
+
+    def search_by_genre(self):
+        """Set search strategy to search by genre."""
+        self.search_strategy = self.search_books_by_genre
+
+    def on_keyrelease(self, books_df, search_entry, results_listbox):
+        """Triggered every time the user types in the search entry."""
+        query = search_entry.get()
+        if query:
+            # Perform search based on the selected strategy and update the Listbox
+            if self.search_strategy:
+                results = self.search_strategy(books_df, query)
+                self.update_results_listbox(results, results_listbox)
+        else:
+            results_listbox.delete(0, tk.END)  # Clear results if query is empty
+
+    @staticmethod
+    def update_results_listbox(results, listbox):
+        listbox.delete(0, tk.END)  # Clear existing results
+        for _, row in results.iterrows():
+            book_info = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']})"
+            listbox.insert(tk.END, book_info)
+
+
+
+    def borrow_selected_book(self, book_listbox, books_list):
+        selected_index = book_listbox.curselection()
+        if not selected_index:
+            messagebox.showerror("Error", "No book selected!")
+            return
+
+        selected_book = books_list.iloc[selected_index[0]]
+        self.lend_book(selected_book, "0777")  # Replace "0777" with the actual phone number
+
+    def lend_book(self, book, phone_number):
+        print(f"Borrowed: {book['title']} by {book['author']} ({book['year']}, {book['genre']})")
+        borrow_book = BookFactory.create_book(book['title'], book['author'], book['copies'],book['is_loaned'],book['year'], book['genre'],book['request'],book['available_copies'])
+        self.session['librarian'].borrow_book(borrow_book, phone_number)
+        messagebox.showinfo("Lend Book", "The book has been borrowed successfully!")
 
     def show_return_book(self):
         self.clear_window()
-        label = tk.Label(self.root, text="remove book", font=("Arial", 16))
-        label.pack(pady=20)
+        # Load the books from the file
+        loaned_books_df = pd.read_csv('Loaned_books.csv')
+        books_list = loaned_books_df
 
-        title_label = tk.Label(self.root, text="title:")
-        title_label.pack(pady=5)
-        title_entry = tk.Entry(self.root)
-        title_entry.pack(pady=5)
+        # Create a Listbox to display books
+        book_listbox = tk.Listbox(self.root, selectmode=tk.SINGLE, height=20, width=75)
+        for _, row in books_list.iterrows():
+            book_display = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']}, {row['phone_number']})"
+            book_listbox.insert(tk.END, book_display)
+        book_listbox.pack(padx=30, pady=30)
 
-        author_label = tk.Label(self.root, text="author:")
-        author_label.pack(pady=5)
-        author_entry = tk.Entry(self.root)
-        author_entry.pack(pady=5)
+        borrow_button = tk.Button(self.root, text="Return",
+                                  command=lambda: self.return_selected_book(book_listbox, books_list))
+        borrow_button.pack(pady=10)
+        # Function to handle book lending
 
-        phone_label = tk.Label(self.root, text="phone:")
-        phone_label.pack(pady=5)
-        phone_entry = tk.Entry(self.root)
-        phone_entry.pack(pady=5)
+        back_button = tk.Button(self.root, text="Back", command=self.show_start_page)
+        back_button.pack(pady=10)
 
-        return_button = tk.Button(self.root, text="return",
-                                  command=partial(self.return_book, title_entry.get(), author_entry.get(),
-                                                  phone_entry.get()))
-        return_button.pack(pady=10)
+    def return_selected_book(self, book_listbox, books_list):
+        selected_index = book_listbox.curselection()
+        if not selected_index:
+            messagebox.showerror("Error", "No book selected!")
+            return
 
-        return_button = tk.Button(self.root, text="back", command= self.show_start_page)
-        return_button.pack(pady=10)
+        selected_book = books_list.iloc[selected_index[0]]
+        self.return_book(selected_book)
 
-    def return_book(self,title, author, phone_number):
-        self.session['librarian'].return_book(title, author, phone_number)
-        messagebox.showinfo("Return Book", "Return Book functionality")
+    def return_book(self, book):
+        print(f"Returned: {book['title']} by {book['author']} ({book['year']}, {book['genre']}, {book['phone_number']})")
+        return_book = BookFactory.create_book(book['title'], book['author'], False, 0,
+                                              book['year'], book['genre'], 0, 0)
+        self.session['librarian'].return_book(return_book, book['phone_number'])
+        messagebox.showinfo("Lend Book", "The book has been borrowed successfully!")
 
     def popular_books(self):
         messagebox.showinfo("Popular Books", "Popular Books functionality")
