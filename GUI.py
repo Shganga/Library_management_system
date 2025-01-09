@@ -1,5 +1,6 @@
 import tkinter as tk
 from functools import partial
+from re import search
 from tkinter import messagebox
 from tkinter.constants import MULTIPLE, SINGLE
 
@@ -12,7 +13,7 @@ class GUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Library System")
-        self.root.geometry("1000x500")
+        self.root.geometry("1000x700")
         self.session = None
         self.search_strategy = None
 
@@ -80,21 +81,7 @@ class GUI:
         # Popular Books Button
         popular_books_button = tk.Button(self.root, text="Popular Books", command=self.check_session_and_execute(self.popular_books))
         popular_books_button.pack(pady=10)
-        # if self.session:
-        #     label = tk.Label(self.root, text=f"Welcome {self.session['librarian']}!", font=("Arial", 16))
-        #     label.pack(pady=20)
-        #
-        #     logout_button = tk.Button(self.root, text="Logout", command=self.logout)
-        #     logout_button.pack(pady=10)
-        # else:
-        #     label = tk.Label(self.root, text="Welcome to the Library System", font=("Arial", 16))
-        #     label.pack(pady=20)
-        #
-        #     login_button = tk.Button(self.root, text="Login", command=self.show_login_page)
-        #     login_button.pack(pady=10)
-        #
-        #     register_button = tk.Button(self.root, text="Register", command=self.show_register_page)
-        #     register_button.pack(pady=10)
+
 
     def show_login_page(self):
         self.clear_window()
@@ -258,7 +245,35 @@ class GUI:
         messagebox.showinfo("Search Book", "Search Book functionality")
 
     def view_books(self):
-        messagebox.showinfo("View Books", "View Books functionality")
+        self.clear_window()
+
+        books_df = pd.read_csv('books.csv')
+        books_list = books_df
+        self.search_strategy = self.search_by_title
+        book_listbox = tk.Listbox(self.root, selectmode=tk.DISABLED, height=20, width=75)
+        for _, row in books_list.iterrows():
+            book_display = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']})"
+            book_listbox.insert(tk.END, book_display)
+        book_listbox.pack(padx=30, pady=30)
+
+
+        # Create buttons to change search strategy
+        title_button = tk.Button(self.root, text="Search by Title", command=self.search_by_title)
+        title_button.pack(pady=5)
+
+        author_button = tk.Button(self.root, text="Search by Author", command=self.search_by_author)
+        author_button.pack(pady=5)
+
+        genre_button = tk.Button(self.root, text="Search by Genre", command=self.search_by_genre)
+        genre_button.pack(pady=5)
+
+        search_entry = tk.Entry(self.root, width=40)
+        search_entry.pack(pady=20)
+        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox, False))
+
+        return_button = tk.Button(self.root, text="back", command=self.show_start_page)
+        return_button.pack(pady=10)
+
 
     def show_lend_book(self):
         self.clear_window()
@@ -281,11 +296,9 @@ class GUI:
         back_button = tk.Button(self.root, text="Back", command=self.show_start_page)
         back_button.pack(pady=10)
 
-        # Search by
-        #results_listbox = tk.Listbox(self.root, width=50, height=10)
-        #results_listbox.pack()
 
         # Create buttons to change search strategy
+        self.search_strategy = self.search_by_title
         title_button = tk.Button(self.root, text="Search by Title", command=self.search_by_title)
         title_button.pack(pady=5)
 
@@ -297,7 +310,7 @@ class GUI:
 
         search_entry = tk.Entry(self.root, width=40)
         search_entry.pack(pady=20)
-        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox))
+        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox, True))
 
         # Static methods to perform the search
     @staticmethod
@@ -325,16 +338,20 @@ class GUI:
         """Set search strategy to search by genre."""
         self.search_strategy = self.search_books_by_genre
 
-    def on_keyrelease(self, books_df, search_entry, results_listbox):
+    def on_keyrelease(self, books_df, search_entry, results_listbox, to_borrow):
         """Triggered every time the user types in the search entry."""
         query = search_entry.get()
+        if to_borrow:
+            all_books = books_df[books_df['available_copies'] > 1]
+        else:
+            all_books = books_df
         if query:
             # Perform search based on the selected strategy and update the Listbox
             if self.search_strategy:
-                results = self.search_strategy(books_df, query)
+                results = self.search_strategy(all_books, query)
                 self.update_results_listbox(results, results_listbox)
         else:
-            results_listbox.delete(0, tk.END)  # Clear results if query is empty
+            self.update_results_listbox(all_books, results_listbox)
 
     @staticmethod
     def update_results_listbox(results, listbox):
