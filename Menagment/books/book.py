@@ -1,7 +1,7 @@
 import pandas as pd
 
 class Book:
-    def __init__(self, title, author, is_loaned ,copies, year, genre, request ,available_copies):
+    def __init__(self, title, author, is_loaned ,copies, year, genre, request ,available_copies,queue):
         self.__title = title
         self.__author = author
         self.__is_loaned = is_loaned
@@ -10,18 +10,20 @@ class Book:
         self.__genre = genre
         self.__request = request
         self.__available_copies = available_copies
+        self.__queue = queue
 
     def to_dict(self):
         """Converts the instance to a dictionary."""
         return {
             'title': self.__title,
             'author': self.__author,
-            'is_loaned': self.__is_loaned,
+            'is_loaned': 'Yes' if self.__is_loaned else 'No',
             'copies': self.__copies,
             'genre': self.__genre,
             'year': self.__year,
-            'requests': self.__request,
-            'available_copies': self.__available_copies
+            'request': self.__request,
+            'available_copies': self.__available_copies,
+            'queue': self.__queue
         }
 
     def get_title(self):
