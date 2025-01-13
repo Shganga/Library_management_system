@@ -1,3 +1,4 @@
+import ast
 import tkinter as tk
 from functools import partial
 from re import search
@@ -22,9 +23,10 @@ class GUI:
 
         self.user_bar = tk.Frame(self.root, height=40, bg="#000000")
         self.user_bar.pack(side="top", fill="x")
-        self.login_button = tk.Button(self.user_bar, text="Login", command=self.show_login_page)
+        self.login_button = tk.Button(self.user_bar, text="login", command=self.show_login_page)
         self.register_button = tk.Button(self.user_bar, text="Register", command=self.show_register_page)
         self.logout_button = tk.Button(self.user_bar, text="Logout", command=self.logout)
+        self.notify_button = tk.Button(self.user_bar, text="💬", command=self.show_notifications)
         # Start the application
         self.refresh_page()
         self.show_start_page()
@@ -34,9 +36,11 @@ class GUI:
         if self.session is None:
             self.login_button.pack(pady=10, side="right", padx=5 )
             self.register_button.pack(pady=10,side="right", padx=5)
+            self.notify_button.pack_forget()
             self.logout_button.pack_forget()
         else:
             self.logout_button.pack(pady=10,side="right", padx=5)
+            self.notify_button.pack(pady=10, side="right", padx=5)
             self.login_button.pack_forget()
             self.register_button.pack_forget()
 
@@ -53,6 +57,48 @@ class GUI:
         self.show_start_page()# Clear the session
         self.refresh_page()
 
+    def show_notifications(self):
+        self.clear_window()
+        users_csv = pd.read_csv("users.csv")
+        user_row = users_csv[users_csv["username"] == self.session['librarian'].get_username()]
+        notifications = user_row["notification"].values[0]
+
+        if isinstance(notifications, str):
+            try:
+                notifications = ast.literal_eval(notifications)  # Convert string to list if necessary
+                if not isinstance(notifications, list):  # Check if it's actually a list after eval
+                    notifications = []
+            except:
+                notifications = []  # Default to empty list if conversion fails
+        elif not isinstance(notifications, list):
+            notifications = []  # In case it's neither a string nor list, default to an empty list
+
+        listbox = tk.Listbox(self.root, height=10, width=60)
+        listbox.pack(pady=20)
+
+        # Add a scrollbar for the listbox
+        scrollbar = tk.Scrollbar(self.root, orient="vertical", command=listbox.yview)
+        listbox.config(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+        delete_msg_button = tk.Button(self.root, text="delete", command=lambda: self.delete_notification(listbox))
+        delete_msg_button.pack(side="center", padx=5, pady=5)
+
+        # Insert each notification into the listbox
+        for notification in notifications:
+            listbox.insert(tk.END, notification)
+
+        # Optional: you can add a message if there are no notifications
+        if not notifications:
+            listbox.insert(tk.END, "No notifications available.")
+    def delete_notification(self, list_box):
+        selected_index = list_box.curselection()
+        did_work = self.session['librarian'].remove_notification(selected_index)
+        if did_work:
+            messagebox.showinfo("Notification was deleted")
+        else:
+            messagebox.showerror("something went wrong")
+        self.show_notifications()
 
     def show_start_page(self):
         self.clear_window()
@@ -109,9 +155,6 @@ class GUI:
         login_button.pack(pady=10)
 
 
-
-
-
     def login(self, username, password):
         users_csv = pd.read_csv("users.csv")
         user_row = users_csv[users_csv["username"] == username]
@@ -164,7 +207,7 @@ class GUI:
             if password == confirm_password:
                 librarian = Librarians(username, password)
 
-                new_user = {"username": librarian.get_username(), "password": librarian.get_password()}
+                new_user = {"username": librarian.get_username(), "password": librarian.get_password(), "notification": librarian.get_notification()}
                 users_csv = users_csv._append(new_user, ignore_index=True)
                 users_csv.to_csv("users.csv", index=False)
 
