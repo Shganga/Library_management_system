@@ -33,3 +33,87 @@
 2025-01-13 12:50:20 - logged in successfully
 2025-01-13 12:50:31 - log out successful
 2025-01-13 12:50:36 - logged in successfully
+2025-01-14 15:51:09 - logged in successfully
+2025-01-14 15:51:10 - Displayed all books successfully
+2025-01-14 15:51:22 - displayed successfully
+2025-01-14 15:51:25 - log out successful
+2025-01-14 15:57:29 - logged in successfully
+2025-01-14 15:58:06 - displayed successfully
+2025-01-14 16:08:15 - logged in successfully
+2025-01-14 16:08:16 - Displayed all books successfully
+2025-01-14 16:24:23 - logged in successfully
+2025-01-14 16:24:28 - Displayed all books successfully
+2025-01-14 16:25:06 - Search book by name completed successfully
+2025-01-14 16:29:04 - Displayed all books successfully
+2025-01-14 16:29:51 - Displayed all books successfully
+2025-01-14 16:29:58 - log out successful
+2025-01-14 16:30:42 - logged in fail
+2025-01-14 16:30:44 - logged in successfully
+2025-01-14 16:32:01 - log out successful
+2025-01-14 16:32:08 - logged in successfully
+2025-01-14 16:32:12 - log out successful
+2025-01-14 16:32:18 - logged in successfully
+2025-01-14 16:32:37 - log out successful
+2025-01-14 16:34:41 - Session not active. Please log in first.
+2025-01-14 16:34:45 - Session not active. Please log in first.
+2025-01-14 16:34:50 - Session not active. Please log in first.
+2025-01-14 16:34:54 - Session not active. Please log in first.
+2025-01-14 16:34:55 - Session not active. Please log in first.
+2025-01-14 16:34:57 - Session not active. Please log in first.
+2025-01-14 16:37:20 - logged in successfully
+2025-01-14 16:37:22 - Displayed all books successfully
+2025-01-14 16:38:51 - logged in successfully
+2025-01-14 16:38:53 - Displayed all books successfully
+2025-01-14 16:39:06 - log out successful
+2025-01-14 16:39:10 - logged in successfully
+2025-01-14 16:39:11 - Displayed all books successfully
+2025-01-14 16:39:34 - logged in successfully
+2025-01-14 16:39:48 - Search book by name completed successfully
+2025-01-14 16:40:48 - logged in successfully
+2025-01-14 16:40:49 - Displayed all books successfully
+2025-01-14 16:40:55 - Search book by name completed successfully
+2025-01-14 16:41:02 - Search book by author name completed successfully
+2025-01-14 16:41:02 - Displayed book by category successfully
+2025-01-14 16:41:03 - Displayed book by category successfully
+2025-01-14 16:41:03 - Search book by author name completed successfully
+2025-01-14 16:41:04 - Search book by name completed successfully
+2025-01-14 16:46:27 - logged in successfully
+2025-01-14 16:46:29 - Displayed all books successfully
+2025-01-14 16:49:48 - logged in successfully
+2025-01-14 16:49:51 - Displayed all books successfully
+2025-01-14 16:49:55 - displayed successfully
+2025-01-14 16:50:07 - log out successful
+2025-01-14 16:50:13 - logged in successfully
+2025-01-14 16:50:14 - Displayed all books successfully
+2025-01-14 16:50:48 - logged in successfully
+2025-01-14 17:03:30 - logged in successfully
+2025-01-14 17:04:01 - logged in successfully
+2025-01-14 17:04:12 - log out successful
+2025-01-14 17:08:14 - Session not active. Please log in first.
+2025-01-14 17:08:20 - logged in successfully
+2025-01-14 17:08:21 - Displayed all books successfully
+2025-01-14 17:10:44 - logged in successfully
+2025-01-14 17:10:44 - Displayed all books successfully
+2025-01-14 17:11:46 - logged in successfully
+2025-01-14 17:11:47 - Displayed all books successfully
+2025-01-14 17:12:45 - logged in successfully
+2025-01-14 17:12:46 - Displayed all books successfully
+2025-01-14 17:13:36 - logged in successfully
+2025-01-14 17:13:36 - Displayed all books successfully
+2025-01-14 17:14:40 - logged in successfully
+2025-01-14 17:14:41 - Displayed all books successfully
+2025-01-14 17:15:39 - logged in successfully
+2025-01-14 17:15:39 - Displayed all books successfully
+2025-01-14 17:17:12 - logged in successfully
+2025-01-14 17:17:13 - Displayed all books successfully
+2025-01-14 17:20:04 - logged in successfully
+2025-01-14 17:20:04 - Displayed all books successfully
+2025-01-14 17:25:00 - Session not active. Please log in first.
+2025-01-14 17:39:44 - logged in successfully
+2025-01-14 17:39:45 - Displayed all books successfully
+2025-01-14 17:39:55 - Search book by name completed successfully
+2025-01-14 17:43:08 - log out successful
+2025-01-14 17:43:26 - Session not active. Please log in first.
+2025-01-14 17:50:14 - logged in successfully
+2025-01-14 17:51:59 - logged in successfully
+2025-01-14 17:55:21 - logged in successfully

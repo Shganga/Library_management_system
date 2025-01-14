@@ -1,4 +1,5 @@
 import ast
+import tkinter
 from xmlrpc.client import FastParser
 
 from werkzeug.security import generate_password_hash
@@ -123,8 +124,12 @@ class Librarians(Notification):
                 loaned_books = loaned_books.drop(loaned_row.index[0])
                 books_df.to_csv('books.csv', index=False)
                 loaned_books.to_csv('loaned_books.csv', index=False)
+                self.notify(
+                    f"{phone_number} returned the book {book.get_title()} by {book.get_author()} to {self.get_username()}.")
 
                 self.handle_queue(book)
+
+
 
             return True
         return False
@@ -157,6 +162,8 @@ class Librarians(Notification):
             books_df.at[row_index, 'copies'] += book.get_copies()
             books_df.at[row_index, 'available_copies'] += book.get_copies()
         books_df.to_csv('books.csv', index=False)
+        self.notify(
+            f"User: {self.get_username()} added a new book {book.get_title()} by {book.get_author()} genre {book.get_genre()} year {book.get_year()} copies of book {book.get_copies()}.")
 
     def remove_book(self,book):
         books_df = pd.read_csv('books.csv')
@@ -169,9 +176,16 @@ class Librarians(Notification):
                 books_df.at[index, 'copies'] -= 1
                 if books_df.at[index, 'copies'] == 0:
                     books_df = books_df.drop(index)
+                    self.notify(
+                        f"User: {self.get_username()} removed the book {book.get_title()} by {book.get_author()} genre {book.get_genre()} year {book.get_year()}")
                 elif books_df.at[index, 'available_copies'] == 0:
                     books_df.at[index, 'is_loaned'] = 'Yes'
+                    self.notify(
+                        f"User: {self.get_username()} removed a copy of the book {book.get_title()} by {book.get_author()} genre {book.get_genre()} year {book.get_year()}")
+                else:
+                    self.notify(f"User: {self.get_username()} removed a copy of the book {book.get_title()} by {book.get_author()} genre {book.get_genre()} year {book.get_year()}")
                 books_df.to_csv('books.csv', index=False)
+
                 return True
             else:
                 print('all the books are loaned wait until at least 1 is returned')

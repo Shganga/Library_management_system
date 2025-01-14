@@ -13,6 +13,7 @@ from Menagment.books.bookFactory import BookFactory
 
 class GUI:
     def __init__(self, root,logging):
+
         self.root = root
         self.root.title("Library System")
         self.root.geometry("1000x700")
@@ -20,13 +21,23 @@ class GUI:
         self.search_strategy = None
 
         self.logging = logging
-
-        self.user_bar = tk.Frame(self.root, height=40, bg="#000000")
+        self.main_color = tk.StringVar(value='#ffffff')
+        self.secondary_color = tk.StringVar(value='#0e6251')
+        self.root.configure(background=self.main_color.get())
+        self.user_bar = tk.Frame(self.root, height=40, bg=self.secondary_color.get())
         self.user_bar.pack(side="top", fill="x")
-        self.login_button = tk.Button(self.user_bar, text="login", command=self.show_login_page)
-        self.register_button = tk.Button(self.user_bar, text="Register", command=self.show_register_page)
-        self.logout_button = tk.Button(self.user_bar, text="Logout", command=self.logout)
-        self.notify_button = tk.Button(self.user_bar, text="💬", command=self.show_notifications)
+
+        self.title_frame = tk.Frame(self.user_bar, bg=self.secondary_color.get())
+        self.title_frame.pack(side="top", fill="x")
+
+        self.title_label = tk.Label(self.title_frame, text="Library System", font=("Arial", 16), bg=self.secondary_color.get(), fg=self.main_color.get())
+        self.title_label.pack(side="top",anchor="center", fill="x")
+        self.login_button = tk.Button(self.user_bar, text="login",background=self.main_color.get() , foreground=self.secondary_color.get(), command=self.show_login_page)
+        self.register_button = tk.Button(self.user_bar, text="Register",background=self.main_color.get(), foreground=self.secondary_color.get(), command=self.show_register_page)
+        self.logout_button = tk.Button(self.user_bar, text="Logout",background=self.main_color.get(), foreground=self.secondary_color.get(), command=self.logout)
+        self.notify_button = tk.Button(self.user_bar, text="💬",background=self.main_color.get(), foreground=self.secondary_color.get(), command=self.show_notifications)
+        self.home_button = tk.Button(self.user_bar, text="🏠", background=self.main_color.get(), foreground=self.secondary_color.get(), command=self.show_start_page)
+
         # Start the application
         self.refresh_page()
         self.show_start_page()
@@ -38,9 +49,11 @@ class GUI:
             self.register_button.pack(pady=10,side="right", padx=5)
             self.notify_button.pack_forget()
             self.logout_button.pack_forget()
+            self.home_button.pack_forget()
         else:
             self.logout_button.pack(pady=10,side="right", padx=5)
             self.notify_button.pack(pady=10, side="right", padx=5)
+            self.home_button.pack(pady=10, side="left", padx=10)
             self.login_button.pack_forget()
             self.register_button.pack_forget()
 
@@ -59,6 +72,7 @@ class GUI:
 
     def show_notifications(self):
         self.clear_window()
+        self.title_label.config(text="Notifications")
         users_csv = pd.read_csv("users.csv")
         user_row = users_csv[users_csv["username"] == self.session['librarian'].get_username()]
         notifications = user_row["notification"].values[0]
@@ -81,8 +95,8 @@ class GUI:
         listbox.config(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
 
-        delete_msg_button = tk.Button(self.root, text="delete", command=lambda: self.delete_notification(listbox))
-        delete_msg_button.pack(side="center", padx=5, pady=5)
+        delete_msg_button = tk.Button(self.root, text="delete",background=self.secondary_color.get() , foreground=self.main_color.get(), command=lambda: self.delete_notification(listbox))
+        delete_msg_button.pack(anchor="center", padx=5, pady=5)
 
         # Insert each notification into the listbox
         for notification in notifications:
@@ -103,54 +117,85 @@ class GUI:
     def show_start_page(self):
         self.clear_window()
         self.refresh_page()
-        label = tk.Label(self.root, text="Library Management", font=("Arial", 16))
-        label.pack(pady=20)
+        self.title_label.config(text="Library System")
+
+        # Frame to center everything
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(expand=True, fill="both")
+
+        # Title Label (centered in main_frame)
+        # self.title_label = tk.Label(main_frame, text="Library System", font=("Arial", 16),
+        #                             bg=self.secondary_color.get(), fg=self.main_color.get())
+        # self.title_label.pack(side="top", pady=20)
+
+        # Frame for buttons, center this inside main_frame
+        buttons_frame = tk.Frame(main_frame)
+        buttons_frame.pack(side="top", expand=True, pady=10)
+
+        # Create buttons and place them in a centered layout
+
+        # Row 1 Frame
+        row1_frame = tk.Frame(buttons_frame)
+        row1_frame.pack(side="top", pady=15)
 
         # Add Book Button
-        add_book_button = tk.Button(self.root, text="Add book page", command=self.check_session_and_execute(self.show_add_book))
-        add_book_button.pack(pady=10)
+        add_book_button = tk.Button(row1_frame, width=30, height=3,font=("Arial", 12), text="Add Book Page",
+                                    background=self.secondary_color.get(), foreground=self.main_color.get(),
+                                    command=self.check_session_and_execute(self.show_add_book))
+        add_book_button.pack(side="left", padx=10)
 
         # Remove Book Button
-        remove_book_button = tk.Button(self.root, text="Remove Book", command=self.check_session_and_execute(self.show_remove_book))
-        remove_book_button.pack(pady=10)
-
-        # Search Book Button
-        search_book_button = tk.Button(self.root, text="Search Book", command=self.check_session_and_execute(self.search_book))
-        search_book_button.pack(pady=10)
+        remove_book_button = tk.Button(row1_frame, width=30, height=3,font=("Arial", 12), text="Remove Book",
+                                       background=self.secondary_color.get(), foreground=self.main_color.get(),
+                                       command=self.check_session_and_execute(self.show_remove_book))
+        remove_book_button.pack(side="left", padx=10)
 
         # View Books Button
-        view_books_button = tk.Button(self.root, text="View Books", command=self.check_session_and_execute(self.view_books))
-        view_books_button.pack(pady=10)
+        view_books_button = tk.Button(row1_frame, width=30, height=3,font=("Arial", 12), text="View Books",
+                                      background=self.secondary_color.get(), foreground=self.main_color.get(),
+                                      command=self.check_session_and_execute(self.view_books))
+        view_books_button.pack(side="left", padx=10)
+
+        # Row 2 Frame
+        row2_frame = tk.Frame(buttons_frame)
+        row2_frame.pack(side="top", pady=15)
 
         # Lend Book Button
-        lend_book_button = tk.Button(self.root, text="Lend Book", command=self.check_session_and_execute(self.show_lend_book))
-        lend_book_button.pack(pady=10)
+        lend_book_button = tk.Button(row2_frame, width=30, height=3,font=("Arial", 12), text="Lend Book",
+                                     background=self.secondary_color.get(), foreground=self.main_color.get(),
+                                     command=self.check_session_and_execute(self.show_lend_book))
+        lend_book_button.pack(side="left", padx=10)
 
         # Return Book Button
-        return_book_button = tk.Button(self.root, text="Return Book", command=self.check_session_and_execute(self.show_return_book))
-        return_book_button.pack(pady=10)
+        return_book_button = tk.Button(row2_frame, width=30, height=3,font=("Arial", 12), text="Return Book",
+                                       background=self.secondary_color.get(), foreground=self.main_color.get(),
+                                       command=self.check_session_and_execute(self.show_return_book))
+        return_book_button.pack(side="left", padx=10)
 
         # Popular Books Button
-        popular_books_button = tk.Button(self.root, text="Popular Books", command=self.check_session_and_execute(self.popular_books))
-        popular_books_button.pack(pady=10)
+        popular_books_button = tk.Button(row2_frame, width=30, height=3,font=("Arial", 12), text="Popular Books",
+                                         background=self.secondary_color.get(), foreground=self.main_color.get(),
+                                         command=self.check_session_and_execute(self.popular_books))
+        popular_books_button.pack(side="left", padx=10)
 
 
     def show_login_page(self):
         self.clear_window()
-        label = tk.Label(self.root, text="Login", font=("Arial", 16))
+        self.title_label.config(text="Login")
+        label = tk.Label(self.root, text="Login",bg=self.main_color.get(), fg=self.secondary_color.get(),  font=("Arial", 16))
         label.pack(pady=20)
 
-        username_label = tk.Label(self.root, text="Username:")
+        username_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="Username:")
         username_label.pack(pady=5)
         username_entry = tk.Entry(self.root)
         username_entry.pack(pady=5)
 
-        password_label = tk.Label(self.root, text="Password:")
+        password_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="Password:")
         password_label.pack(pady=5)
         password_entry = tk.Entry(self.root, show="*")
         password_entry.pack(pady=5)
 
-        login_button = tk.Button(self.root, text="Login",
+        login_button = tk.Button(self.root, text="Login",background=self.secondary_color.get() , foreground=self.main_color.get(),
                                  command=lambda: self.login(username_entry.get(), password_entry.get()))
         login_button.pack(pady=10)
 
@@ -178,26 +223,26 @@ class GUI:
 
     def show_register_page(self):
         self.clear_window()
-
-        label = tk.Label(self.root, text="Register", font=("Arial", 16))
+        self.title_label.config(text="Register")
+        label = tk.Label(self.root, text="Register",bg=self.main_color.get(), fg=self.secondary_color.get(),  font=("Arial", 16))
         label.pack(pady=20)
 
-        username_label = tk.Label(self.root, text="Username:")
+        username_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="Username:")
         username_label.pack(pady=5)
         username_entry = tk.Entry(self.root)
         username_entry.pack(pady=5)
 
-        password_label = tk.Label(self.root, text="Password:")
+        password_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="Password:")
         password_label.pack(pady=5)
         password_entry = tk.Entry(self.root, show="*")
         password_entry.pack(pady=5)
 
-        confirm_password_label = tk.Label(self.root, text="Confirm Password:")
+        confirm_password_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="Confirm Password:")
         confirm_password_label.pack(pady=5)
         confirm_password_entry = tk.Entry(self.root, show="*")
         confirm_password_entry.pack(pady=5)
 
-        register_button = tk.Button(self.root, text="Register", command=lambda: self.register(username_entry.get(), password_entry.get(), confirm_password_entry.get()))
+        register_button = tk.Button(self.root, text="Register",background=self.secondary_color.get() , foreground=self.main_color.get(), command=lambda: self.register(username_entry.get(), password_entry.get(), confirm_password_entry.get()))
         register_button.pack(pady=10)
 
 
@@ -228,43 +273,43 @@ class GUI:
 
     def show_add_book(self):
         self.clear_window()
-
+        self.title_label.config(text="Add book")
         # Create the login page widgets
-        label = tk.Label(self.root, text="add book", font=("Arial", 16))
+        label = tk.Label(self.root, text="add book",bg=self.main_color.get(), fg=self.secondary_color.get(),  font=("Arial", 16))
         label.pack(pady=20)
 
-        title_label = tk.Label(self.root, text="title:")
+        title_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="title:")
         title_label.pack(pady=5)
         title_entry = tk.Entry(self.root)
         title_entry.pack(pady=5)
 
-        year_label = tk.Label(self.root, text="year:")
+        year_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="year:")
         year_label.pack(pady=5)
         year_entry = tk.Entry(self.root)
         year_entry.pack(pady=5)
 
-        author_label = tk.Label(self.root, text="author:")
+        author_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="author:")
         author_label.pack(pady=5)
         author_entry = tk.Entry(self.root)
         author_entry.pack(pady=5)
 
-        genre_label = tk.Label(self.root, text="genre:")
+        genre_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="genre:")
         genre_label.pack(pady=5)
         genre_entry = tk.Entry(self.root)
         genre_entry.pack(pady=5)
 
-        copy_label = tk.Label(self.root, text="copy:")
+        copy_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="copy:")
         copy_label.pack(pady=5)
         copy_entry = tk.Entry(self.root)
         copy_entry.pack(pady=5)
 
-        submit_button = tk.Button(self.root, text="add",
+        submit_button = tk.Button(self.root, text="add",background=self.secondary_color.get() , foreground=self.main_color.get(),
                                   command=lambda: (self.add_book( title_entry.get(), year_entry.get(), author_entry.get(),
                                                   genre_entry.get(), copy_entry.get())))
         submit_button.pack(pady=10)
 
-        return_button = tk.Button(self.root, text="back", command=self.show_start_page)
-        return_button.pack(pady=10)
+        # return_button = tk.Button(self.root, text="🏠",background=self.secondary_color.get() , foreground=self.main_color.get(), command=self.show_start_page)
+        # return_button.pack(pady=10)
 
     # Placeholder functions for the book actions
     def add_book(self,title, year, author, genre, copies):
@@ -299,7 +344,7 @@ class GUI:
 
     def show_remove_book(self):
         self.clear_window()
-        # Load the books from the file
+        self.title_label.config(text="Remove book")
         books_df = pd.read_csv('books.csv')
         books_list = books_df
 
@@ -315,8 +360,8 @@ class GUI:
         borrow_button.pack(pady=10)
         # Function to handle book lending
 
-        back_button = tk.Button(self.root, text="Back", command=self.show_start_page)
-        back_button.pack(pady=10)
+        # back_button = tk.Button(self.root, text="Back",background=self.secondary_color.get() , foreground=self.main_color.get(), command=self.show_start_page)
+        # back_button.pack(pady=10)
 
     def remove_selected_book(self, book_listbox, books_list):
         selected_index = book_listbox.curselection()
@@ -344,82 +389,87 @@ class GUI:
 
     def view_books(self):
         self.clear_window()
-
+        self.title_label.config(text="View Books")
         books_df = pd.read_csv('books.csv')
         books_list = books_df
-        self.search_strategy = self.search_by_title
+        #self.search_strategy = self.search_by_title
         book_listbox = tk.Listbox(self.root, selectmode=tk.DISABLED, height=20, width=75)
         for _, row in books_list.iterrows():
-            book_display = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']})"
+            book_display = f"{row['title']}, by {row['author']}, {row['year']}, {row['genre']}"
             book_listbox.insert(tk.END, book_display)
         book_listbox.pack(padx=30, pady=30)
 
+        button_frame = tk.Frame(self.root, bg=self.main_color.get())
+        button_frame.pack()
+        title_button = tk.Button(button_frame, text="Search by Title", background=self.secondary_color.get(),
+                                 foreground=self.main_color.get(), command=self.search_by_title)
+        title_button.pack(side="left", pady=5, padx=5)
 
-        # Create buttons to change search strategy
-        title_button = tk.Button(self.root, text="Search by Title", command=self.search_by_title)
-        title_button.pack(pady=5)
+        author_button = tk.Button(button_frame, text="Search by Author", background=self.secondary_color.get(),
+                                  foreground=self.main_color.get(), command=self.search_by_author)
+        author_button.pack(side="left", pady=5, padx=5)
 
-        author_button = tk.Button(self.root, text="Search by Author", command=self.search_by_author)
-        author_button.pack(pady=5)
+        genre_button = tk.Button(button_frame, text="Search by Genre", background=self.secondary_color.get(),
+                                 foreground=self.main_color.get(), command=self.search_by_genre)
+        genre_button.pack(side="left", pady=5, padx=5)
 
-        genre_button = tk.Button(self.root, text="Search by Genre", command=self.search_by_genre)
-        genre_button.pack(pady=5)
-
-        search_entry = tk.Entry(self.root, width=40)
-        search_entry.pack(pady=20)
-        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox, False))
-
-        return_button = tk.Button(self.root, text="back", command=self.show_start_page)
-        return_button.pack(pady=10)
+        search_entry = tk.Entry(button_frame, width=40)
+        search_entry.pack(pady=20, side="left")
+        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox, True))
 
         self.logging.info("Displayed all books successfully")
 
 
     def show_lend_book(self):
         self.clear_window()
-
+        self.title_label.config(text="Lend book")
         # Load the books from the file
         books_df = pd.read_csv('books.csv')
+        button_frame = tk.Frame(self.root, bg=self.main_color.get())
+        button_frame.pack()
+        # self.search_strategy = self.search_by_title
+        title_button = tk.Button(button_frame, text="Search by Title", background=self.secondary_color.get(),
+                                 foreground=self.main_color.get(), command=self.search_by_title)
+        title_button.pack(side="left", pady=5, padx=5)
 
+        author_button = tk.Button(button_frame, text="Search by Author", background=self.secondary_color.get(),
+                                  foreground=self.main_color.get(), command=self.search_by_author)
+        author_button.pack(side="left", pady=5, padx=5)
+
+        genre_button = tk.Button(button_frame, text="Search by Genre", background=self.secondary_color.get(),
+                                 foreground=self.main_color.get(), command=self.search_by_genre)
+        genre_button.pack(side="left", pady=5, padx=5)
+
+        search_entry = tk.Entry(button_frame, width=40)
+        search_entry.pack(pady=20, side="left")
+        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox, True))
 
         # Create a Listbox to display books
         book_listbox = tk.Listbox(self.root, selectmode=tk.SINGLE, height=20, width=75)
         for _, row in books_df.iterrows():
-            book_display = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']})"
+            book_display = f"{row['title']}, by {row['author']}, {row['year']}, {row['genre']}"
             book_listbox.insert(tk.END, book_display)
         book_listbox.pack(padx=30, pady=30)
 
-        phone_label = tk.Label(self.root, text="phone number:")
+        phone_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="phone number:")
         phone_label.pack(pady=5)
         phone_entry = tk.Entry(self.root)
         phone_entry.pack(pady=5)
 
-        borrow_button = tk.Button(self.root, text="Borrow", command=lambda: self.borrow_selected_book(book_listbox, books_df,phone_entry.get()))
+        borrow_button = tk.Button(self.root, text="Borrow",background=self.secondary_color.get() , foreground=self.main_color.get(), command=lambda: self.borrow_selected_book(book_listbox, books_df,phone_entry.get()))
         borrow_button.pack(pady=10)
         # Function to handle book lending
 
-        back_button = tk.Button(self.root, text="Back", command=self.show_start_page)
-        back_button.pack(pady=10)
+        # back_button = tk.Button(self.root, text="Back",background=self.secondary_color.get() , foreground=self.main_color.get(), command=self.show_start_page)
+        # back_button.pack(pady=10)
 
         available_list = books_df[books_df['available_copies'] >= 1]
-        available_button = tk.Button(self.root, text="Show_available", command=lambda: self.update_results_listbox(available_list,book_listbox))
+        available_button = tk.Button(self.root, text="Show_available",background=self.secondary_color.get() , foreground=self.main_color.get(), command=lambda: self.update_results_listbox(available_list,book_listbox))
         available_button.pack(pady=10)
 
 
         # Create buttons to change search strategy
-        self.search_strategy = self.search_by_title
-        title_button = tk.Button(self.root, text="Search by Title", command=self.search_by_title)
-        title_button.pack(pady=5)
 
-        author_button = tk.Button(self.root, text="Search by Author", command=self.search_by_author)
-        author_button.pack(pady=5)
-
-        genre_button = tk.Button(self.root, text="Search by Genre", command=self.search_by_genre)
-        genre_button.pack(pady=5)
-
-        search_entry = tk.Entry(self.root, width=40)
-        search_entry.pack(pady=20)
-        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox, True))
 
         # Static methods to perform the search
 
@@ -510,6 +560,7 @@ class GUI:
 
     def show_return_book(self):
         self.clear_window()
+        self.title_label.config(text="Return Book")
         # Load the books from the file
         loaned_books_df = pd.read_csv('Loaned_books.csv')
         books_list = loaned_books_df
@@ -521,13 +572,13 @@ class GUI:
             book_listbox.insert(tk.END, book_display)
         book_listbox.pack(padx=30, pady=30)
 
-        borrow_button = tk.Button(self.root, text="Return",
+        borrow_button = tk.Button(self.root, text="Return",background=self.secondary_color.get() , foreground=self.main_color.get(),
                                   command=lambda: self.return_selected_book(book_listbox, books_list))
         borrow_button.pack(pady=10)
         # Function to handle book lending
 
-        back_button = tk.Button(self.root, text="Back", command=self.show_start_page)
-        back_button.pack(pady=10)
+        # back_button = tk.Button(self.root, text="Back",background=self.secondary_color.get() , foreground=self.main_color.get(), command=self.show_start_page)
+        # back_button.pack(pady=10)
 
     def return_selected_book(self, book_listbox, books_list):
         selected_index = book_listbox.curselection()
@@ -553,6 +604,7 @@ class GUI:
 
     def popular_books(self):
         self.clear_window()
+        self.title_label.config(text="Popular Books")
         df = pd.read_csv('books.csv')
         top_books = df.sort_values(by='request', ascending=False).head(10)
         book_listbox = tk.Listbox(self.root, selectmode=tk.DISABLED, height=20, width=75)
