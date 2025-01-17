@@ -2,7 +2,7 @@ import ast
 import tkinter as tk
 from functools import partial
 from re import search
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from tkinter.constants import MULTIPLE, SINGLE
 import logging
 
@@ -73,6 +73,8 @@ class GUI:
     def show_notifications(self):
         self.clear_window()
         self.title_label.config(text="Notifications")
+
+        # Load the user's notifications from the CSV
         users_csv = pd.read_csv("users.csv")
         user_row = users_csv[users_csv["username"] == self.session['librarian'].get_username()]
         notifications = user_row["notification"].values[0]
@@ -87,32 +89,49 @@ class GUI:
         elif not isinstance(notifications, list):
             notifications = []  # In case it's neither a string nor list, default to an empty list
 
-        listbox = tk.Listbox(self.root, height=10, width=60)
-        listbox.pack(pady=20)
+        # Create a Treeview to display notifications
+        tree = ttk.Treeview(self.root, columns=("Notification"), show="headings", height=10)
+        tree.pack(pady=20)
 
-        # Add a scrollbar for the listbox
-        scrollbar = tk.Scrollbar(self.root, orient="vertical", command=listbox.yview)
-        listbox.config(yscrollcommand=scrollbar.set)
+        # Define columns
+        tree.heading("Notification", text="Notification")
+        tree.column("Notification", width=500)
+
+        # Add a scrollbar for the Treeview
+        scrollbar = tk.Scrollbar(self.root, orient="vertical", command=tree.yview)
+        tree.config(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
 
-        delete_msg_button = tk.Button(self.root, text="delete",background=self.secondary_color.get() , foreground=self.main_color.get(), command=lambda: self.delete_notification(listbox))
-        delete_msg_button.pack(anchor="center", padx=5, pady=5)
-
-        # Insert each notification into the listbox
+        # Add each notification as a row in the Treeview
         for notification in notifications:
-            listbox.insert(tk.END, notification)
+            tree.insert("", "end", values=(notification,))
 
         # Optional: you can add a message if there are no notifications
         if not notifications:
-            listbox.insert(tk.END, "No notifications available.")
-    def delete_notification(self, list_box):
-        selected_index = list_box.curselection()
+            tree.insert("", "end", values=("No notifications available.",))
+
+        # Add a delete button for removing notifications
+        delete_msg_button = tk.Button(self.root, text="Delete", background=self.secondary_color.get(),
+                                      foreground=self.main_color.get(), command=lambda: self.delete_notification(tree))
+        delete_msg_button.pack(anchor="center", padx=5, pady=5)
+
+    def delete_notification(self, tree):
+        # Get the selected item in the Treeview
+        selected_item = tree.selection()
+        if not selected_item:
+            messagebox.showerror("Error", "No notification selected!")
+            return
+
+        # Get the index of the selected item
+        selected_index = tree.index(selected_item)
+
+        # Call the remove_notification method with the selected index
         did_work = self.session['librarian'].remove_notification(selected_index)
         if did_work:
-            messagebox.showinfo("Notification was deleted")
+            messagebox.showinfo("Success", "Notification was deleted")
+            self.show_notifications()  # Refresh the notifications
         else:
-            messagebox.showerror("something went wrong")
-        self.show_notifications()
+            messagebox.showerror("Error", "Something went wrong")
 
     def show_start_page(self):
         self.clear_window()
@@ -122,11 +141,6 @@ class GUI:
         # Frame to center everything
         main_frame = tk.Frame(self.root)
         main_frame.pack(expand=True, fill="both")
-
-        # Title Label (centered in main_frame)
-        # self.title_label = tk.Label(main_frame, text="Library System", font=("Arial", 16),
-        #                             bg=self.secondary_color.get(), fg=self.main_color.get())
-        # self.title_label.pack(side="top", pady=20)
 
         # Frame for buttons, center this inside main_frame
         buttons_frame = tk.Frame(main_frame)
@@ -177,6 +191,9 @@ class GUI:
                                          background=self.secondary_color.get(), foreground=self.main_color.get(),
                                          command=self.check_session_and_execute(self.popular_books))
         popular_books_button.pack(side="left", padx=10)
+
+
+
 
 
     def show_login_page(self):
@@ -341,36 +358,48 @@ class GUI:
         messagebox.showinfo("Book Added", "Book added successfully!")
         self.show_start_page()
 
-
     def show_remove_book(self):
         self.clear_window()
-        self.title_label.config(text="Remove book")
+        self.title_label.config(text="Remove Book")
+
+        # Load the books from the file
         books_df = pd.read_csv('books.csv')
-        books_list = books_df
 
-        # Create a Listbox to display books
-        book_listbox = tk.Listbox(self.root, selectmode=tk.SINGLE, height=20, width=75)
-        for _, row in books_list.iterrows():
-            book_display = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']})"
-            book_listbox.insert(tk.END, book_display)
-        book_listbox.pack(padx=30, pady=30)
+        # Create a Treeview to display books
+        tree = ttk.Treeview(self.root, columns=("Title", "Author", "Year", "Genre"), show="headings", height=20)
+        tree.pack(padx=30, pady=30, fill=tk.BOTH, expand=True)
 
-        borrow_button = tk.Button(self.root, text="Remove",
-                                  command=lambda: self.remove_selected_book(book_listbox, books_list))
-        borrow_button.pack(pady=10)
-        # Function to handle book lending
+        # Define column headings and widths
+        tree.heading("Title", text="Title")
+        tree.column("Title", anchor=tk.W, width=200)
 
-        # back_button = tk.Button(self.root, text="Back",background=self.secondary_color.get() , foreground=self.main_color.get(), command=self.show_start_page)
-        # back_button.pack(pady=10)
+        tree.heading("Author", text="Author")
+        tree.column("Author", anchor=tk.W, width=150)
 
-    def remove_selected_book(self, book_listbox, books_list):
-        selected_index = book_listbox.curselection()
-        if not selected_index:
+        tree.heading("Year", text="Year")
+        tree.column("Year", anchor=tk.W, width=80)
+
+        tree.heading("Genre", text="Genre")
+        tree.column("Genre", anchor=tk.W, width=120)
+
+        for _, row in books_df.iterrows():
+            tree.insert("", tk.END, values=(row["title"], row["author"], row["year"], row["genre"]))
+
+        remove_button = tk.Button(self.root, text="Remove", background=self.secondary_color.get(),
+                                  foreground=self.main_color.get(),
+                                  command=lambda: self.remove_selected_book(tree, books_df))
+        remove_button.pack(pady=10)
+
+    def remove_selected_book(self, book_treeview, books_list):
+        selected_item = book_treeview.selection()
+        if not selected_item:
             messagebox.showerror("Error", "No book selected!")
             return
+        selected_index = int(book_treeview.index(selected_item[0]))
+        selected_book = books_list.iloc[selected_index]
 
-        selected_book = books_list.iloc[selected_index[0]]
         self.remove_book(selected_book)
+
 
     def remove_book(self, book):
         print(f"Removed: {book['title']} by {book['author']} ({book['year']}, {book['genre']})")
@@ -379,9 +408,11 @@ class GUI:
         did_work = self.session['librarian'].remove_book(remove_book)
         if did_work:
             messagebox.showinfo("Remove Book", "The books was removed!")
+            self.logging.info("book removed successfully")
             self.show_remove_book()
         else:
             messagebox.showerror("Remove Book", "All the copies of the book are loaned wait for 1 to return")
+            self.logging.info("book removed fail")
 
 
     def search_book(self):
@@ -391,87 +422,159 @@ class GUI:
         self.clear_window()
         self.title_label.config(text="View Books")
         books_df = pd.read_csv('books.csv')
-        books_list = books_df
-        #self.search_strategy = self.search_by_title
-        book_listbox = tk.Listbox(self.root, selectmode=tk.DISABLED, height=20, width=75)
-        for _, row in books_list.iterrows():
-            book_display = f"{row['title']}, by {row['author']}, {row['year']}, {row['genre']}"
-            book_listbox.insert(tk.END, book_display)
-        book_listbox.pack(padx=30, pady=30)
+        top_frame = tk.Frame(self.root, bg=self.main_color.get())
+        top_frame.pack()
+        # Button to show available books
+        available_list = books_df[books_df['available_copies'] >= 1]
+        available_button = tk.Button(top_frame, text="Show Available", background=self.secondary_color.get(),
+                                     foreground=self.main_color.get(),
+                                     command=lambda: self.show_available_books(available_list, tree))
+        available_button.pack(pady=10, side="left")
 
+        # Button to show loaned books
+        loaned_list = books_df[books_df['is_loaned'] == 'Yes']
+        loaned_button = tk.Button(top_frame, text="Show Loaned", background=self.secondary_color.get(),
+                                  foreground=self.main_color.get(),
+                                  command=lambda: self.show_loaned_books(loaned_list, tree))
+        loaned_button.pack(pady=10, side="left")
+
+        # Button to show all books
+        all_button = tk.Button(top_frame, text="Show All", background=self.secondary_color.get(),
+                               foreground=self.main_color.get(), command=lambda: self.show_all_books(books_df, tree))
+        all_button.pack(pady=10, side="left")
+        # Create a Treeview widget for displaying books
+        tree = ttk.Treeview(self.root, columns=("Title", "Author", "Year", "Genre"), show="headings", height=20)
+        tree.pack(padx=30, pady=30, fill=tk.BOTH, expand=True)
+
+        # Define column headings and widths
+        tree.heading("Title", text="Title")
+        tree.column("Title", anchor=tk.W, width=200)
+
+        tree.heading("Author", text="Author")
+        tree.column("Author", anchor=tk.W, width=150)
+
+        tree.heading("Year", text="Year")
+        tree.column("Year", anchor=tk.W, width=80)
+
+        tree.heading("Genre", text="Genre")
+        tree.column("Genre", anchor=tk.W, width=120)
+
+        # Populate the Treeview with book data
+        for _, row in books_df.iterrows():
+            tree.insert("", tk.END, values=(row["title"], row["author"], row["year"], row["genre"]))
+
+        # Create a button frame for search options
         button_frame = tk.Frame(self.root, bg=self.main_color.get())
         button_frame.pack()
+
+        # Search buttons and entry
+        search_entry = tk.Entry(button_frame, width=40)
+        search_entry.pack(pady=20, side="left")
+
         title_button = tk.Button(button_frame, text="Search by Title", background=self.secondary_color.get(),
-                                 foreground=self.main_color.get(), command=self.search_by_title)
+                                 foreground=self.main_color.get(),
+                                 command=lambda: self.search_by_title(books_df, search_entry, tree))
         title_button.pack(side="left", pady=5, padx=5)
 
         author_button = tk.Button(button_frame, text="Search by Author", background=self.secondary_color.get(),
-                                  foreground=self.main_color.get(), command=self.search_by_author)
+                                  foreground=self.main_color.get(),
+                                  command=lambda: self.search_by_author(books_df, search_entry, tree))
         author_button.pack(side="left", pady=5, padx=5)
 
         genre_button = tk.Button(button_frame, text="Search by Genre", background=self.secondary_color.get(),
-                                 foreground=self.main_color.get(), command=self.search_by_genre)
+                                 foreground=self.main_color.get(),
+                                 command=lambda: self.search_by_genre(books_df, search_entry, tree))
         genre_button.pack(side="left", pady=5, padx=5)
 
-        search_entry = tk.Entry(button_frame, width=40)
-        search_entry.pack(pady=20, side="left")
-        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox, True))
 
-        self.logging.info("Displayed all books successfully")
 
+        self.logging.info("Displayed all books.")
+
+    def show_available_books(self, available_list, tree):
+        # Update Treeview with available books
+        self.update_results_treeview(available_list, tree)
+        self.logging.info("Displayed available books.")
+
+    def show_loaned_books(self, loaned_list, tree):
+        # Update Treeview with loaned books
+        self.update_results_treeview(loaned_list, tree)
+        self.logging.info("Displayed loaned books.")
+
+    def show_all_books(self, books_df, tree):
+        # Update Treeview with all books
+        self.update_results_treeview(books_df, tree)
+        self.logging.info("Displayed all books.")
 
     def show_lend_book(self):
         self.clear_window()
-        self.title_label.config(text="Lend book")
+        self.title_label.config(text="Lend Book")
+
         # Load the books from the file
         books_df = pd.read_csv('books.csv')
+
+        # Create a frame for search buttons and entry
         button_frame = tk.Frame(self.root, bg=self.main_color.get())
-        button_frame.pack()
-        # self.search_strategy = self.search_by_title
-        title_button = tk.Button(button_frame, text="Search by Title", background=self.secondary_color.get(),
-                                 foreground=self.main_color.get(), command=self.search_by_title)
-        title_button.pack(side="left", pady=5, padx=5)
-
-        author_button = tk.Button(button_frame, text="Search by Author", background=self.secondary_color.get(),
-                                  foreground=self.main_color.get(), command=self.search_by_author)
-        author_button.pack(side="left", pady=5, padx=5)
-
-        genre_button = tk.Button(button_frame, text="Search by Genre", background=self.secondary_color.get(),
-                                 foreground=self.main_color.get(), command=self.search_by_genre)
-        genre_button.pack(side="left", pady=5, padx=5)
+        button_frame.pack(side="top")
 
         search_entry = tk.Entry(button_frame, width=40)
         search_entry.pack(pady=20, side="left")
-        search_entry.bind("<KeyRelease>", lambda event: self.on_keyrelease(books_df, search_entry, book_listbox, True))
 
-        # Create a Listbox to display books
-        book_listbox = tk.Listbox(self.root, selectmode=tk.SINGLE, height=20, width=75)
+        title_button = tk.Button(button_frame, text="Search by Title", background=self.secondary_color.get(),
+                                 foreground=self.main_color.get(),
+                                 command=lambda: self.search_by_title(books_df, search_entry, tree))
+        title_button.pack(side="left", pady=5, padx=5)
+
+        author_button = tk.Button(button_frame, text="Search by Author", background=self.secondary_color.get(),
+                                  foreground=self.main_color.get(),
+                                  command=lambda: self.search_by_author(books_df, search_entry, tree))
+        author_button.pack(side="left", pady=5, padx=5)
+
+        genre_button = tk.Button(button_frame, text="Search by Genre", background=self.secondary_color.get(),
+                                 foreground=self.main_color.get(),
+                                 command=lambda: self.search_by_genre(books_df, search_entry, tree))
+        genre_button.pack(side="left", pady=5, padx=5)
+        # Create a Treeview to display books
+        tree = ttk.Treeview(self.root, columns=("Title", "Author", "Year", "Genre", "Available Copies"),
+                            show="headings", height=20)
+        tree.pack(padx=30, pady=30, fill=tk.BOTH, expand=True)
+
+        # Define column headings and widths
+        tree.heading("Title", text="Title")
+        tree.column("Title", anchor=tk.W, width=200)
+
+        tree.heading("Author", text="Author")
+        tree.column("Author", anchor=tk.W, width=150)
+
+        tree.heading("Year", text="Year")
+        tree.column("Year", anchor=tk.W, width=80)
+
+        tree.heading("Genre", text="Genre")
+        tree.column("Genre", anchor=tk.W, width=120)
+
+        tree.heading("Available Copies", text="Available Copies")
+        tree.column("Available Copies", anchor=tk.W, width=120)
+
+        # Populate the Treeview with books
         for _, row in books_df.iterrows():
-            book_display = f"{row['title']}, by {row['author']}, {row['year']}, {row['genre']}"
-            book_listbox.insert(tk.END, book_display)
-        book_listbox.pack(padx=30, pady=30)
-
-        phone_label = tk.Label(self.root,bg=self.main_color.get(), fg=self.secondary_color.get(),  text="phone number:")
-        phone_label.pack(pady=5)
-        phone_entry = tk.Entry(self.root)
-        phone_entry.pack(pady=5)
-
-        borrow_button = tk.Button(self.root, text="Borrow",background=self.secondary_color.get() , foreground=self.main_color.get(), command=lambda: self.borrow_selected_book(book_listbox, books_df,phone_entry.get()))
-        borrow_button.pack(pady=10)
-        # Function to handle book lending
-
-        # back_button = tk.Button(self.root, text="Back",background=self.secondary_color.get() , foreground=self.main_color.get(), command=self.show_start_page)
-        # back_button.pack(pady=10)
-
-        available_list = books_df[books_df['available_copies'] >= 1]
-        available_button = tk.Button(self.root, text="Show_available",background=self.secondary_color.get() , foreground=self.main_color.get(), command=lambda: self.update_results_listbox(available_list,book_listbox))
-        available_button.pack(pady=10)
+            tree.insert("", tk.END,
+                        values=(row["title"], row["author"], row["year"], row["genre"], row["available_copies"]))
 
 
-        # Create buttons to change search strategy
 
+        button_frame2 = tk.Frame(self.root, bg=self.main_color.get())
+        button_frame2.pack()
+        # Phone number entry and label
+        phone_label = tk.Label(button_frame2, bg=self.main_color.get(), fg=self.secondary_color.get(), text="Phone number:")
+        phone_label.pack(pady=5,side="left", padx=5)
+        phone_entry = tk.Entry(button_frame2)
+        phone_entry.pack(pady=5, side="left")
 
-        # Static methods to perform the search
+        # Borrow button
+        borrow_button = tk.Button(button_frame2, text="Borrow", background=self.secondary_color.get(),
+                                  foreground=self.main_color.get(),
+                                  command=lambda: self.borrow_selected_book(tree, books_df, phone_entry.get()))
+        borrow_button.pack(pady=10, side="left")
+
 
     def search_books_by_title(self,books_df, query):
         return books_df[books_df['title'].str.contains(query, case=False, na=False)]
@@ -486,35 +589,55 @@ class GUI:
 
 
     # Instance methods to change the search strategy
-    def search_by_title(self):
+    def search_by_title(self, books_df, search_entry, results_listbox):
         """Set search strategy to search by title."""
-        self.logging.info("Search book by name completed successfully")
         self.search_strategy = self.search_books_by_title
+        self.search_button_pressed(books_df, search_entry, results_listbox, False)
+        self.logging.info(f"Search book \"{search_entry.get()}\" by name completed successfully")
 
-    def search_by_author(self):
+    def search_by_author(self, books_df, search_entry, results_listbox):
         """Set search strategy to search by author."""
-        self.logging.info("Search book by author name completed successfully")
         self.search_strategy = self.search_books_by_author
+        self.search_button_pressed(books_df, search_entry, results_listbox, False)
+        self.logging.info(f"Search book by author name \"{search_entry.get()}\" completed successfully")
 
-    def search_by_genre(self):
+
+    def search_by_genre(self, books_df, search_entry, results_listbox):
         """Set search strategy to search by genre."""
-        self.logging.info("Displayed book by category successfully")
         self.search_strategy = self.search_books_by_genre
+        self.search_button_pressed(books_df, search_entry, results_listbox, False)
+        self.logging.info(f"Displayed book by category \"{search_entry.get()}\" successfully")
 
-    def on_keyrelease(self, books_df, search_entry, results_listbox, to_borrow):
-        """Triggered every time the user types in the search entry."""
+
+
+    def search_button_pressed(self, books_df, search_entry, results_treeview, to_borrow):
         query = search_entry.get()
+        # Filter books based on availability if `to_borrow` is True
         if to_borrow:
             all_books = books_df[books_df['available_copies'] > 1]
         else:
             all_books = books_df
+
+        # Clear the Treeview
+        results_treeview.delete(*results_treeview.get_children())
+
+        # Perform search and update the Treeview
         if query:
-            # Perform search based on the selected strategy and update the Listbox
+            # Use the selected search strategy to filter results
             if self.search_strategy:
                 results = self.search_strategy(all_books, query)
-                self.update_results_listbox(results, results_listbox)
+                self.update_results_treeview(results, results_treeview)
         else:
-            self.update_results_listbox(all_books, results_listbox)
+            # If no query, display all books
+            self.update_results_treeview(all_books, results_treeview)
+
+    def update_results_treeview(self, results_df, treeview):
+        # Clear the Treeview
+        treeview.delete(*treeview.get_children())
+
+        # Populate the Treeview with results
+        for _, row in results_df.iterrows():
+            treeview.insert("", tk.END, values=(row["title"], row["author"], row["year"], row["genre"]))
 
     @staticmethod
     def update_results_listbox(results, listbox):
@@ -523,23 +646,29 @@ class GUI:
             book_info = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']})"
             listbox.insert(tk.END, book_info)
 
-
-
-    def borrow_selected_book(self, book_listbox, books_list,phone_number):
-        selected_index = book_listbox.curselection()
-        if not selected_index:
+    def borrow_selected_book(self, book_treeview, books_list, phone_number):
+        # Get selected item from the Treeview
+        selected_item = book_treeview.selection()
+        if not selected_item:
             messagebox.showerror("Error", "No book selected!")
-            self.logging.error("Book borrowed fail")
+            self.logging.error("Book borrow failed: No book selected.")
             return
+
+        # Validate phone number
         if not phone_number:
             messagebox.showerror("Error", "Must enter phone number!")
-            self.logging.error("Book borrowed fail")
+            self.logging.error("Book borrow failed: Phone number missing.")
             return
         if not phone_number.isdigit():
             messagebox.showerror("Error", "Phone number must contain only digits!")
-            self.logging.error("Book borrowed fail")
+            self.logging.error("Book borrow failed: Invalid phone number.")
             return
-        selected_book = books_list.iloc[selected_index[0]]
+
+        # Get the index of the selected book
+        selected_index = int(book_treeview.index(selected_item[0]))
+        selected_book = books_list.iloc[selected_index]
+
+        # Lend the selected book
         self.lend_book(selected_book, str(phone_number))
 
     def lend_book(self, book, phone_number):
@@ -561,32 +690,52 @@ class GUI:
     def show_return_book(self):
         self.clear_window()
         self.title_label.config(text="Return Book")
+
         # Load the books from the file
         loaned_books_df = pd.read_csv('Loaned_books.csv')
-        books_list = loaned_books_df
 
-        # Create a Listbox to display books
-        book_listbox = tk.Listbox(self.root, selectmode=tk.SINGLE, height=20, width=75)
-        for _, row in books_list.iterrows():
-            book_display = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']}, {row['phone_number']})"
-            book_listbox.insert(tk.END, book_display)
-        book_listbox.pack(padx=30, pady=30)
+        # Create a Treeview to display loaned books
+        tree = ttk.Treeview(self.root, columns=("Title", "Author", "Year", "Genre", "Phone Number"), show="headings",
+                            height=20)
+        tree.pack(padx=30, pady=30, fill=tk.BOTH, expand=True)
 
-        borrow_button = tk.Button(self.root, text="Return",background=self.secondary_color.get() , foreground=self.main_color.get(),
-                                  command=lambda: self.return_selected_book(book_listbox, books_list))
-        borrow_button.pack(pady=10)
-        # Function to handle book lending
+        # Define column headings and widths
+        tree.heading("Title", text="Title")
+        tree.column("Title", anchor=tk.W, width=200)
 
-        # back_button = tk.Button(self.root, text="Back",background=self.secondary_color.get() , foreground=self.main_color.get(), command=self.show_start_page)
-        # back_button.pack(pady=10)
+        tree.heading("Author", text="Author")
+        tree.column("Author", anchor=tk.W, width=150)
 
-    def return_selected_book(self, book_listbox, books_list):
-        selected_index = book_listbox.curselection()
-        if not selected_index:
+        tree.heading("Year", text="Year")
+        tree.column("Year", anchor=tk.W, width=80)
+
+        tree.heading("Genre", text="Genre")
+        tree.column("Genre", anchor=tk.W, width=120)
+
+        tree.heading("Phone Number", text="Phone Number")
+        tree.column("Phone Number", anchor=tk.W, width=150)
+
+        # Populate the Treeview with loaned books
+        for _, row in loaned_books_df.iterrows():
+            tree.insert("", tk.END,
+                        values=(row["title"], row["author"], row["year"], row["genre"], row["phone_number"]))
+
+        # Create the return button
+        return_button = tk.Button(self.root, text="Return", background=self.secondary_color.get(),
+                                  foreground=self.main_color.get(),
+                                  command=lambda: self.return_selected_book(tree, loaned_books_df))
+        return_button.pack(pady=10)
+
+    def return_selected_book(self, book_treeview, books_list):
+        # Get the selected item from the Treeview
+        selected_item = book_treeview.selection()
+        if not selected_item:
             messagebox.showerror("Error", "No book selected!")
             return
 
-        selected_book = books_list.iloc[selected_index[0]]
+        selected_index = int(book_treeview.index(selected_item[0]))
+        selected_book = books_list.iloc[selected_index]
+
         self.return_book(selected_book)
 
     def return_book(self, book):
@@ -605,14 +754,39 @@ class GUI:
     def popular_books(self):
         self.clear_window()
         self.title_label.config(text="Popular Books")
+
+        # Load the books from the file
         df = pd.read_csv('books.csv')
+
+        # Sort books by 'request' and get the top 10 most popular books
         top_books = df.sort_values(by='request', ascending=False).head(10)
-        book_listbox = tk.Listbox(self.root, selectmode=tk.DISABLED, height=20, width=75)
+
+        # Create a Treeview to display popular books
+        tree = ttk.Treeview(self.root, columns=("Title", "Author", "Year", "Genre", "Requests"), show="headings",
+                            height=20)
+        tree.pack(padx=30, pady=30, fill=tk.BOTH, expand=True)
+
+        # Define column headings and widths
+        tree.heading("Title", text="Title")
+        tree.column("Title", anchor=tk.W, width=200)
+
+        tree.heading("Author", text="Author")
+        tree.column("Author", anchor=tk.W, width=150)
+
+        tree.heading("Year", text="Year")
+        tree.column("Year", anchor=tk.W, width=80)
+
+        tree.heading("Genre", text="Genre")
+        tree.column("Genre", anchor=tk.W, width=120)
+
+        tree.heading("Requests", text="Requests")
+        tree.column("Requests", anchor=tk.W, width=80)
+
+        # Populate the Treeview with the top 10 popular books
         for _, row in top_books.iterrows():
-            book_display = f"{row['title']} by {row['author']} ({row['year']}, {row['genre']})"
-            book_listbox.insert(tk.END, book_display)
-        book_listbox.pack(padx=30, pady=30)
-        self.logging.info("displayed successfully")
+            tree.insert("", tk.END, values=(row["title"], row["author"], row["year"], row["genre"], row["request"]))
+
+        self.logging.info("Displayed popular books successfully")
 
     def check_session_and_execute(self, func):
         def wrapper(*args, **kwargs):

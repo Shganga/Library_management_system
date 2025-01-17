@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash
 
 from Menagment.books.bookFactory import BookFactory
 from Menagment.books.book import *
-from notification import Notification
+from observer import Notification
 
 
 class Librarians(Notification):

@@ -117,3 +117,125 @@
 2025-01-14 17:50:14 - logged in successfully
 2025-01-14 17:51:59 - logged in successfully
 2025-01-14 17:55:21 - logged in successfully
+2025-01-16 12:22:48 - logged in successfully
+2025-01-16 12:22:54 - Displayed all books successfully
+2025-01-16 12:23:31 - Displayed all books successfully
+2025-01-16 12:25:06 - Book borrowed successfully
+2025-01-16 12:25:16 - Book borrowed fail
+2025-01-16 12:25:24 - Book returned successfully
+2025-01-16 12:25:30 - Book returned successfully
+2025-01-16 12:25:56 - displayed successfully
+2025-01-16 12:26:04 - Displayed all books successfully
+2025-01-16 12:26:19 - log out successful
+2025-01-16 12:26:21 - Session not active. Please log in first.
+2025-01-16 12:26:22 - Session not active. Please log in first.
+2025-01-16 12:26:23 - Session not active. Please log in first.
+2025-01-16 12:26:25 - Session not active. Please log in first.
+2025-01-17 14:38:50 - logged in successfully
+2025-01-17 14:38:54 - Displayed all books successfully
+2025-01-17 14:38:57 - Displayed all books successfully
+2025-01-17 15:10:29 - logged in successfully
+2025-01-17 15:10:30 - Displayed all books successfully
+2025-01-17 15:20:42 - logged in successfully
+2025-01-17 15:20:44 - Displayed all books successfully
+2025-01-17 15:21:04 - Session not active. Please log in first.
+2025-01-17 15:21:09 - logged in successfully
+2025-01-17 15:21:09 - Displayed all books successfully
+2025-01-17 15:22:03 - logged in successfully
+2025-01-17 15:22:04 - Displayed all books successfully
+
+
+2025-01-17 15:27:27 - Session not active. Please log in first.
+2025-01-17 15:27:31 - logged in successfully
+2025-01-17 15:27:32 - Displayed all books successfully
+
+2025-01-17 15:30:40 - logged in successfully
+2025-01-17 15:30:44 - Search book "123" by name completed successfully
+2025-01-17 15:30:46 - Search book "za" by name completed successfully
+2025-01-17 15:30:47 - Search book "a" by name completed successfully
+2025-01-17 15:30:49 - Search book "b" by name completed successfully
+2025-01-17 15:30:52 - Search book "" by name completed successfully
+2025-01-17 15:38:20 - logged in successfully
+2025-01-17 15:38:21 - Displayed all books successfully
+2025-01-17 15:40:18 - logged in successfully
+2025-01-17 15:40:18 - Displayed all books successfully
+2025-01-17 15:40:19 - Search book "a" by name completed successfully
+2025-01-17 15:40:26 - Search book "b" by name completed successfully
+2025-01-17 15:40:28 - Search book "basd" by name completed successfully
+2025-01-17 15:40:28 - Search book "basd" by name completed successfully
+2025-01-17 15:40:28 - Search book "basd" by name completed successfully
+2025-01-17 15:40:31 - Search book "a" by name completed successfully
+2025-01-17 15:40:32 - Search book by author name "a" completed successfully
+2025-01-17 15:40:32 - Search book by author name "a" completed successfully
+2025-01-17 15:40:32 - Displayed book by category "a" successfully
+2025-01-17 15:40:33 - Displayed book by category "a" successfully
+2025-01-17 15:40:34 - Search book "" by name completed successfully
+2025-01-17 15:40:35 - Search book "" by name completed successfully
+2025-01-17 15:40:35 - Search book "" by name completed successfully
+2025-01-17 15:41:20 - logged in successfully
+2025-01-17 15:41:20 - Displayed all books successfully
+2025-01-17 15:41:21 - Search book "a" by name completed successfully
+2025-01-17 15:41:26 - Search book "" by name completed successfully
+2025-01-17 15:41:28 - Search book "b" by name completed successfully
+2025-01-17 15:42:48 - logged in successfully
+2025-01-17 15:42:49 - Displayed all books successfully
+2025-01-17 15:42:50 - Search book "a" by name completed successfully
+2025-01-17 15:42:53 - Search book "b" by name completed successfully
+2025-01-17 15:42:56 - Search book "" by name completed successfully
+2025-01-17 15:43:02 - log out successful
+2025-01-17 15:44:13 - logged in successfully
+2025-01-17 15:44:15 - Displayed all books successfully
+2025-01-17 15:44:32 - displayed successfully
+2025-01-17 15:44:34 - Displayed all books successfully
+2025-01-17 15:46:32 - logged in successfully
+2025-01-17 15:46:55 - Book borrowed successfully
+2025-01-17 15:48:55 - logged in successfully
+2025-01-17 15:48:58 - Book returned successfully
+2025-01-17 15:49:02 - log out successful
+2025-01-17 15:52:55 - logged in successfully
+2025-01-17 15:54:29 - logged in successfully
+2025-01-17 15:54:29 - Displayed all books successfully
+2025-01-17 15:54:35 - displayed successfully
+2025-01-17 15:55:55 - Session not active. Please log in first.
+2025-01-17 15:56:00 - logged in successfully
+2025-01-17 15:56:01 - Displayed popular books successfully
+2025-01-17 15:56:31 - logged in successfully
+2025-01-17 15:59:56 - Displayed all books successfully
+2025-01-17 16:01:38 - logged in successfully
+2025-01-17 16:01:39 - Displayed all books successfully
+2025-01-17 16:04:38 - logged in successfully
+2025-01-17 16:04:49 - Displayed all books successfully
+2025-01-17 16:06:09 - logged in successfully
+2025-01-17 16:06:09 - Displayed all books successfully
+2025-01-17 16:07:22 - logged in successfully
+2025-01-17 16:07:31 - Displayed all books successfully
+2025-01-17 16:10:28 - logged in successfully
+2025-01-17 16:10:28 - Displayed all books.
+2025-01-17 16:10:31 - Displayed available books.
+2025-01-17 16:10:32 - Displayed loaned books.
+2025-01-17 16:10:33 - Displayed all books.
+2025-01-17 16:10:35 - log out successful
+2025-01-17 16:13:31 - logged in successfully
+2025-01-17 16:13:32 - Displayed all books.
+2025-01-17 16:13:36 - Displayed loaned books.
+2025-01-17 16:13:36 - Displayed available books.
+2025-01-17 16:13:37 - Displayed all books.
+2025-01-17 16:13:39 - Search book "a" by name completed successfully
+2025-01-17 16:13:41 - Search book "as" by name completed successfully
+2025-01-17 16:13:44 - Search book "the" by name completed successfully
+2025-01-17 16:13:46 - Search book "th" by name completed successfully
+2025-01-17 16:13:46 - Search book by author name "th" completed successfully
+2025-01-17 16:13:47 - Displayed book by category "th" successfully
+2025-01-17 16:14:02 - Displayed popular books successfully
+2025-01-17 16:14:15 - log out successful
+2025-01-17 16:16:36 - logged in successfully
+2025-01-17 16:26:10 - logged in successfully
+2025-01-17 16:26:56 - logged in successfully
+2025-01-17 16:28:52 - logged in successfully
+2025-01-17 16:29:18 - logged in successfully
+2025-01-17 16:29:19 - Displayed popular books successfully
+2025-01-17 16:29:20 - Displayed all books.
+2025-01-17 16:29:26 - log out successful
+2025-01-17 17:10:30 - logged in successfully
+2025-01-17 17:10:31 - Displayed all books.
+2025-01-17 17:10:36 - log out successful

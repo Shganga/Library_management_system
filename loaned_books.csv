@@ -1,2 +1,1 @@
-title,author,year,genre,phone_number
-
+title,author,is_loaned,copies,year,genre,request,available_copies,queue,phone_number
