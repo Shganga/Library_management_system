@@ -2,7 +2,7 @@
 
 ## Instructions for Running the Project
 
-1. Press the **Run** button and wait for the application window to open.
+1. Press the **Run** button from the main.py file and wait for the application window to open.
 2. Once the window opens, you will see a homepage displaying various library actions, such as adding a book, lending a book, and more.
 3. To access these features, you must first log in by clicking the **Login** button in the top-right corner.
    - If you do not have an account, you will need to register.
@@ -32,14 +32,14 @@
   4. If all copies of a book are removed (i.e., the number of copies becomes zero), the book is permanently deleted from the library database.
 
 ### View Books
-- **Functionality:** Librarians can view all books in the library and search or filter through them.
+- **Functionality:** Librarians can view all books / available books / loaned books in the library and search through them.
 - **Features:**
   - Search by:
     - Author
     - Title
     - Genre
     - Availability
-  - Partial matching is supported, and the list dynamically updates to streamline searching.
+  - Partial matching is supported.
 
 ### Lend Book
 - **Functionality:** Librarians can lend books to customers.
