@@ -1,37 +1,92 @@
-# Library management system 
+# Library Management System
 
+## Instructions for Running the Project
 
-## Instructions for running the project
+1. Press the **Run** button and wait for the application window to open.
+2. Once the window opens, you will see a homepage displaying various library actions, such as adding a book, lending a book, and more.
+3. To access these features, you must first log in by clicking the **Login** button in the top-right corner.
+   - If you do not have an account, you will need to register.
+   - Attempting to use the system without logging in will trigger a popup reminding you to log in to gain the necessary permissions.
+4. After logging in, you can access all the features and view notifications related to your account.
 
-Press the run button and wait for the window to open, after it opens you will see a page with alot of library actions such as 
-adding a book lending a book and so on. To accesses these pages first you will need to login (top right corner)and if you dont have an account you will have to register
-(pressing the buttons without logging in will create a popup window that reminds you to log in to have permission).
-after you logged in you cna access all the pages and the notification for your account.
+## System Features
 
-## Description of the system features
+### Add Book
+- **Functionality:** Librarians can add books to the library database.
+- **Process:**
+  1. Click the **Add Book** button to navigate to the book addition page.
+  2. Fill in the following fields:
+     - Title
+     - Author
+     - Number of Copies
+     - Year
+     - Genre
+  3. If the book already exists, the entered number of copies will be added to the existing count. If it does not exist, a new entry will be created in the database.
 
-Our system supports basic action that a librarian can do in the library system. <br>
+### Remove Book
+- **Functionality:** Librarians can remove copies of a book from the library.
+- **Process:**
+  1. Click the **Remove Book** button to navigate to the removal page.
+  2. Select a book from the list of library books.
+  3. Copies can only be removed if the book is not currently loaned out (i.e., the "is_loaned" field must be "no").
+  4. If all copies of a book are removed (i.e., the number of copies becomes zero), the book is permanently deleted from the library database.
 
-Add book: a librarian can add a book to the library, after pressing the add book button he will be taken to a page with 5 fields: title,author,copies,year,genre. The librarian will fill these fields and add the book, if the book already exists it will add the new copies to the current ones if he doesn't he will be added as a new book in the library. <br>
+### View Books
+- **Functionality:** Librarians can view all books in the library and search or filter through them.
+- **Features:**
+  - Search by:
+    - Author
+    - Title
+    - Genre
+    - Availability
+  - Partial matching is supported, and the list dynamically updates to streamline searching.
 
-Remove book: a librarian can remove a copy of a book from the library, after pressing the remove book button he will be taken to a page with a listbox (a list that allows us to choose a line) of all the books in the library, as long as the field is_loaned is not 'yes' the librarian can remove a copy of the book if the field is 'yes' it means that there are no copies at the library so he cant remove it from the system, and he has to wait until a copy is returned.(if the librarian removes a copy and the copies field = 0 the book will be erased from the library database)
+### Lend Book
+- **Functionality:** Librarians can lend books to customers.
+- **Process:**
+  1. Click the **Lend Book** button to view a list of all available books.
+  2. Select a book and enter the customer's phone number.
+  3. Click the **Borrow** button to complete the lending process.
+     - The request count for the book is incremented.
+     - The book and customer information are recorded in a CSV file named `loaned_books`.
+     - If all copies of the book are loaned out, the customer is added to a waiting list.
+  4. When the book becomes available, the system sends a notification and automatically lends the book to the customer.
 
-View books: a librarian can look at all the books in the library and additionally he can look for a specific or a group of them, He/She can filter by author, title, genre, and available books (author,title,genre are all search with partial matching and the list dynamic changes so the librarian has an easier time).<br>
+### Return Book
+- **Functionality:** Librarians can return books that have been loaned out.
+- **Process:**
+  1. Select the book and the customer's phone number from the list of loaned books.
+  2. Click the **Return** button to update the system.
 
-Lend book: a librarian can lend a book to a customer, after pressing the lend book button he will be taken to a page with list of all the books, after choosing a book and entering the customers phone number he/she can lend the book by pressing the borrow button(it will add +1 to the request field of the book). The info of the book and the phone number will be saved in a csv file named loaned_books, if all the copies of this book are loaned the customer will be added to the waiting list and when the book becomes available it will send a notification and lend him the book.
+### Popular Books
+- **Functionality:** View the top 10 most requested books in the library.
 
-Return book: a librarian needs to return the book in the system after the customer brought it back so it can be loaned, the librarian will choose the book that has the phone number of the customer from the list of loaned books and return it.
+### Notifications
+- **Functionality:** Librarians can view and manage notifications.
+- **Process:**
+  1. Click the notification icon (text bubble) in the top-right corner.
+  2. Notifications can be reviewed and individually deleted. Deleting a notification only removes it for the logged-in librarian.
 
-Popular books: a librarian can see the top 10 most requested books in the library
+### Logout
+- **Functionality:** Logout of the system by clicking the **Logout** button in the top-right corner.
 
-Logout: In the top right corner there is an option to logout
+### Homepage
+- **Functionality:** Return to the main page by clicking the **Home** icon (house) in the top-left corner.
 
-Notifications: In the top right corner there is a picture of a text buble pressing it will take the librarian to a page that shows him his notifications he can keep them or select which he wants to delete(if a librarian deletes a notification it will be deleted only for him).
+## Design Patterns Implemented
 
-HomePage: In the top left there is a picture of a house this button takes the current librarian back to the main page.
+### Factory Pattern
+- Used for creating instances of different classes in the system, ensuring flexibility and reusability.
 
-## Design patterns that were implemented
+### Observer Pattern
+- Implemented for the notification system to inform librarians of updates, such as when a book becomes available.
 
-### Factory, Observer, Strategy, Decorator
+### Strategy Pattern
+- Applied to the search and filtering functionality, allowing dynamic changes to the filtering criteria without altering the core logic.
 
+### Decorator Pattern
+- Used to enhance existing functionalities, such as extending book attributes or adding additional logging features without modifying the original code.
+
+---
+This system provides a streamlined and efficient way to manage library operations while maintaining a user-friendly interface for librarians.
 

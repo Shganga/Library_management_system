@@ -239,3 +239,12 @@
 2025-01-17 17:10:30 - logged in successfully
 2025-01-17 17:10:31 - Displayed all books.
 2025-01-17 17:10:36 - log out successful
+2025-01-19 16:38:48 - logged in successfully
+2025-01-19 16:38:54 - book added successfully
+2025-01-19 16:39:01 - book removed successfully
+2025-01-19 16:39:18 - Book borrowed fail
+2025-01-19 16:39:25 - Displayed all books.
+2025-01-19 17:18:05 - logged in successfully
+2025-01-19 17:18:32 - Book borrowed successfully
+2025-01-19 17:18:35 - Book returned successfully
+2025-01-19 17:18:38 - log out successful
